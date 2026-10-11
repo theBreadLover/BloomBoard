@@ -37,6 +37,5 @@ next-env.d.ts
 
 # editor/OS noise
 .vscode*
-.idea*
-Thumbs.db
 .idea/
+Thumbs.db
