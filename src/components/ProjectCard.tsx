@@ -11,7 +11,7 @@ interface ProjectCardProps {
 /**
  * Formats an ISO timestamp as a short relative string like "2 days ago".
  * @param isoTimestamp - The timestamp to format.
- * @returns A short human-readable relative time string.
+ * @returns A short relative time string.
  */
 function formatRelativeTime(isoTimestamp: string): string {
 	const millisecondsPerDay = 1000 * 60 * 60 * 24;
@@ -21,11 +21,7 @@ function formatRelativeTime(isoTimestamp: string): string {
 	return `${daysAgo} days ago`;
 }
 
-/**
- * A single project card in the list view: name, status badge, progress ring,
- * and last-activity timestamp. Clicking it navigates to the project detail page.
- */
-export default function ProjectCard({project, completionPercentage}: ProjectCardProps): JSX.Element {
+export default function ProjectCard({project, completionPercentage}: ProjectCardProps) {
 	const statusMeta = PROJECT_STATUS_META[project.status];
 
 	return (

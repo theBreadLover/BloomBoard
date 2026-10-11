@@ -2,12 +2,12 @@ import type {ProjectNote} from "@/types/project";
 
 /**
  * Checks whether two dates fall on the same calendar day (ignoring time of day).
- * @param first - The first date to compare.
- * @param second - The second date to compare.
+ * @param firstDate - The first date to compare.
+ * @param secondDate - The second date to compare.
  * @returns True if both dates are the same calendar day.
  */
-function isSameDay(first: Date, second: Date): boolean {
-	return first.toDateString() === second.toDateString();
+function isSameDay(firstDate: Date, secondDate: Date): boolean {
+	return firstDate.toDateString() === secondDate.toDateString();
 }
 
 /**
@@ -39,9 +39,8 @@ export function formatClockTime(isoTimestamp: string): string {
 	return new Date(isoTimestamp).toLocaleTimeString(undefined, {hour: "numeric", minute: "2-digit"});
 }
 
-/**
- * One day's worth of notes, grouped for the notes timeline.
- */
+
+// One day's worth of notes, grouped for the notes' timeline.
 export interface NoteDayGroup {
 	dayLabel: string;
 	notes: ProjectNote[];

@@ -1,11 +1,7 @@
-/**
- * The lifecycle status of a project, shown as a color-coded badge in the UI.
- */
+// The lifecycle status of a project, shown as a color-coded badge in the UI.
 export type ProjectStatus = "working" | "postponed" | "finished";
 
-/**
- * A single todo item that belongs to a project.
- */
+// A single task item that belongs to a project.
 export interface ProjectTask {
 	id: string;
 	projectId: string;
@@ -16,7 +12,7 @@ export interface ProjectTask {
 
 /**
  * A free-text note taken while working on a project, optionally tied to a
- * specific task so notes can be grouped under "what I did on this todo".
+ * specific task so notes can be grouped under "what I did on this task".
  */
 export interface ProjectNote {
 	id: string;
@@ -26,10 +22,7 @@ export interface ProjectNote {
 	createdAt: string; // ISO timestamp
 }
 
-/**
- * A single timed work session on a project, used to measure daily work time
- * for the "haven't worked an hour today" notification.
- */
+// A single timed work session on a project, used to measure daily work time.
 export interface WorkSession {
 	id: string;
 	projectId: string;
@@ -37,9 +30,7 @@ export interface WorkSession {
 	endedAt: string | null; // null while the timer is still running
 }
 
-/**
- * A tracked personal project, the top-level entity in the app.
- */
+// A tracked personal project, the top-level entity in the app.
 export interface Project {
 	id: string;
 	name: string;

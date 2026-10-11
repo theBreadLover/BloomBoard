@@ -1,6 +1,3 @@
-/**
- * The app's sticky top bar: just the BloomBoard brand mark, shown on every page.
- */
 export default function AppHeader() {
 	return (
 		<header className="sticky top-0 z-10 border-b border-brandBorder bg-brandSurface px-5 py-3">

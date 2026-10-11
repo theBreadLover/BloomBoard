@@ -3,8 +3,6 @@ import {findProjectById, getNotesForProject, getTasksForProject, mockNotes, mock
 import ProjectDetailView from "@/components/ProjectDetailView";
 
 interface ProjectDetailPageProps {
-	// Next.js 15 delivers route params as a Promise, not a plain object — it
-	// must be awaited before reading any property off it (see README).
 	params: Promise<{ id: string }>;
 }
 

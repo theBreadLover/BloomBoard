@@ -10,7 +10,6 @@ const inter = Inter({
 	variable: "--font-inter",
 });
 
-// Poppins powers headings, buttons, badges, and tabs — its rounded geometry matches the app's pill shapes.
 const poppins = Poppins({
 	subsets: ["latin"],
 	weight: ["500", "600", "700", "800"],

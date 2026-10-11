@@ -25,14 +25,13 @@ function createLocalId(prefix: string): string {
 }
 
 /**
- * The real project detail screen: a status header, and tabs for the todo
+ * The project detail screen: a status header, and tabs for the task
  * list, the day-grouped notes timeline, and (eventually) the GitHub source
  * browser. Also hosts the work session timer.
  *
  * Todos and notes are managed as local state for now — they start from the
  * mock data passed in by the server component, and changes here don't yet
- * persist anywhere. Real persistence arrives once the Supabase backend step
- * is built.
+ * persist anywhere.
  */
 export default function ProjectDetailView({project, initialTasks, initialNotes}: ProjectDetailViewProps) {
 	const [activeTab, setActiveTab] = useState<DetailTab>("todos");
@@ -40,7 +39,7 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 	const [notes, setNotes] = useState<ProjectNote[]>(initialNotes);
 	const [newTodoText, setNewTodoText] = useState("");
 	const [newNoteText, setNewNoteText] = useState("");
-	// Empty string means "no specific todo" — kept as a string since <select> values are always strings.
+	// Empty string means "no specific task" — kept as a string since <select> values are always strings.
 	const [newNoteTaskId, setNewNoteTaskId] = useState("");
 	const [isTimerRunning, setIsTimerRunning] = useState(false);
 	const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -64,14 +63,14 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 	const completionPercentage = tasks.length === 0 ? 0 : Math.round((doneTaskCount / tasks.length) * 100);
 	const noteDayGroups = groupNotesByDay(notes);
 
-	/** Flips a single task between done and not-done. */
+	// Flips a single task between done and not-done.
 	function toggleTask(taskId: string): void {
 		setTasks((previousTasks) =>
 			previousTasks.map((task) => (task.id === taskId ? {...task, isDone: !task.isDone} : task)),
 		);
 	}
 
-	/** Adds a new todo from the input box, ignoring empty submissions. */
+	// Adds a new task from the input box, ignoring empty submissions.
 	function addTask(): void {
 		const title = newTodoText.trim();
 		if (!title) return;
@@ -86,7 +85,7 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 		setNewTodoText("");
 	}
 
-	/** Adds a new note from the input box, optionally tagged to a todo, ignoring empty submissions. */
+	// Adds a new note from the input box, optionally tagged to a task, ignoring empty submissions.
 	function addNote(): void {
 		const body = newNoteText.trim();
 		if (!body) return;
@@ -101,7 +100,7 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 		setNewNoteText("");
 	}
 
-	/** Starts or stops the work session timer. */
+	// Starts or stops the work session timer.
 	function toggleTimer(): void {
 		setIsTimerRunning((previous) => !previous);
 	}

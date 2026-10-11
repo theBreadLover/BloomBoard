@@ -2,7 +2,8 @@ import type {Project, ProjectNote, ProjectTask} from "@/types/project";
 
 /**
  * Placeholder sample data so the UI can be previewed before the Supabase
- * backend is wired up. Replace with real data-fetching in a later step.
+ * backend is wired up.
+ * TODO Replace with real data-fetching in a later step.
  */
 export const mockProjects: Project[] = [
 	{

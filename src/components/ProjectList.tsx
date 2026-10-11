@@ -19,12 +19,7 @@ const FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
 	{value: "finished", label: "Finished"},
 ];
 
-/**
- * The main screen: a filterable list of all projects as clickable cards.
- * A client component because it holds interactive filter state; the
- * projects/tasks themselves are fetched server-side by the parent page.
- */
-export default function ProjectList({projects, tasks}: ProjectListProps): JSX.Element {
+export default function ProjectList({projects, tasks}: ProjectListProps) {
 	const [activeFilter, setActiveFilter] = useState<StatusFilter>("all");
 
 	// Only recompute the filtered list when the projects or the active filter change.
