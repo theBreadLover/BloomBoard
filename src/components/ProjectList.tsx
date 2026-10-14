@@ -2,7 +2,8 @@
 
 import {useMemo, useState} from "react";
 import type {Project, ProjectStatus, ProjectTask} from "@/types/project";
-import {computeProjectProgress} from "@/lib/mockData";
+import {computeProjectProgress} from "@/lib/projectStats";
+import NewProjectForm from "./NewProjectForm";
 import ProjectCard from "./ProjectCard";
 
 interface ProjectListProps {
@@ -17,14 +18,21 @@ const FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
 	{value: "working", label: "Working"},
 	{value: "postponed", label: "Postponed"},
 	{value: "finished", label: "Finished"},
+	{value: "abandoned", label: "Abandoned"},
 ];
 
+/**
+ * A filterable list of all projects as clickable cards.
+ * projects/tasks themselves are fetched server-side by the parent page.
+ */
 export default function ProjectList({projects, tasks}: ProjectListProps) {
 	const [activeFilter, setActiveFilter] = useState<StatusFilter>("all");
 
 	// Only recompute the filtered list when the projects or the active filter change.
 	const filteredProjects = useMemo(() => {
-		if (activeFilter === "all") return projects;
+		// Abandoned projects are hidden from "All" — they only show up when that
+		// filter is explicitly selected, so they don't clutter the everyday view.
+		if (activeFilter === "all") return projects.filter((project) => project.status !== "abandoned");
 		return projects.filter((project) => project.status === activeFilter);
 	}, [projects, activeFilter]);
 
@@ -32,12 +40,7 @@ export default function ProjectList({projects, tasks}: ProjectListProps) {
 		<div className="mx-auto max-w-2xl p-4 sm:p-6">
 			<header className="mb-5 flex items-center justify-between">
 				<h1 className="font-heading text-xl font-bold text-brandText">My Projects</h1>
-				<button
-					type="button"
-					className="rounded-xl bg-brandAccent px-4 py-2 font-heading text-sm font-semibold text-brandAccentContrast transition hover:brightness-110"
-				>
-					+ New
-				</button>
+				<NewProjectForm/>
 			</header>
 
 			<div className="mb-4 flex flex-wrap gap-2">

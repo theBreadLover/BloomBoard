@@ -1,9 +1,8 @@
-import type {Project, ProjectNote, ProjectTask} from "@/types/project";
+import type { Project, ProjectNote, ProjectTask } from "@/types/project";
 
 /**
  * Placeholder sample data so the UI can be previewed before the Supabase
- * backend is wired up.
- * TODO Replace with real data-fetching in a later step.
+ * backend is wired up. Replace with real data-fetching in a later step.
  */
 export const mockProjects: Project[] = [
 	{
@@ -30,13 +29,21 @@ export const mockProjects: Project[] = [
 		githubRepoUrl: "https://github.com/example/portfolio-site",
 		createdAt: "2026-05-02T09:00:00.000Z",
 	},
+	{
+		id: "proj-4",
+		name: "Weekend Hackathon Prototype",
+		description: "A quick recipe-recommendation app built over a hackathon weekend.",
+		status: "abandoned",
+		githubRepoUrl: null,
+		createdAt: "2026-03-14T09:00:00.000Z",
+	},
 ];
 
 export const mockTasks: ProjectTask[] = [
-	{id: "task-1", projectId: "proj-1", title: "Design data model", isDone: true, createdAt: "2026-10-01T10:00:00.000Z"},
-	{id: "task-2", projectId: "proj-1", title: "Build project list screen", isDone: true, createdAt: "2026-10-02T10:00:00.000Z"},
-	{id: "task-3", projectId: "proj-1", title: "Build project detail screen", isDone: false, createdAt: "2026-10-03T10:00:00.000Z"},
-	{id: "task-4", projectId: "proj-1", title: "Wire up Supabase backend", isDone: false, createdAt: "2026-10-03T10:05:00.000Z"},
+	{ id: "task-1", projectId: "proj-1", title: "Design data model", isDone: true, createdAt: "2026-10-01T10:00:00.000Z" },
+	{ id: "task-2", projectId: "proj-1", title: "Build project list screen", isDone: true, createdAt: "2026-10-02T10:00:00.000Z" },
+	{ id: "task-3", projectId: "proj-1", title: "Build project detail screen", isDone: false, createdAt: "2026-10-03T10:00:00.000Z" },
+	{ id: "task-4", projectId: "proj-1", title: "Wire up Supabase backend", isDone: false, createdAt: "2026-10-03T10:05:00.000Z" },
 ];
 
 export const mockNotes: ProjectNote[] = [

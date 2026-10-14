@@ -3,7 +3,6 @@ import {Inter, Poppins} from "next/font/google";
 import AppHeader from "@/components/AppHeader";
 import "./globals.css";
 
-// Inter powers body copy — descriptions, todo text, notes — chosen for small-size legibility.
 const inter = Inter({
 	subsets: ["latin"],
 	weight: ["400", "500", "600", "700", "800"],

@@ -1,5 +1,5 @@
-import {notFound} from "next/navigation";
-import {findProjectById, getNotesForProject, getTasksForProject, mockNotes, mockTasks} from "@/lib/mockData";
+import { notFound } from "next/navigation";
+import { getNotesForProject, getProjectById, getTasksForProjects } from "@/lib/supabase/queries";
 import ProjectDetailView from "@/components/ProjectDetailView";
 
 interface ProjectDetailPageProps {
@@ -7,21 +7,18 @@ interface ProjectDetailPageProps {
 }
 
 /**
- * The project detail route: loads the project and its related tasks/notes
- * server-side, then hands them to the interactive client view.
+ * The project detail route: loads the project and its real tasks/notes from
+ * Supabase, then hands them to the interactive client view.
  */
-export default async function ProjectDetailPage({params}: ProjectDetailPageProps) {
-	const {id} = await params;
-	const project = findProjectById(id);
+export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
+	const { id } = await params;
+	const project = await getProjectById(id);
 
 	if (!project) {
 		notFound();
 	}
 
-	const projectTasks = getTasksForProject(project.id, mockTasks);
-	const projectNotes = getNotesForProject(project.id, mockNotes);
+	const [tasks, notes] = await Promise.all([getTasksForProjects([project.id]), getNotesForProject(project.id)]);
 
-	return <ProjectDetailView project={project}
-	                          initialTasks={projectTasks}
-	                          initialNotes={projectNotes}/>;
+	return <ProjectDetailView project={project} tasks={tasks} notes={notes} />;
 }

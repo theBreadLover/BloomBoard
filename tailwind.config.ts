@@ -26,9 +26,11 @@ const config: Config = {
 				statusFinishedBg: "rgba(148, 163, 184, 0.18)",
 				statusFinishedText: "#cbd5e1",
 				statusFinishedDot: "#94a3b8",
+				statusAbandonedBg: "rgba(248, 113, 113, 0.18)",
+				statusAbandonedText: "#fca5a5",
+				statusAbandonedDot: "#f87171",
 			},
 			fontFamily: {
-				// Poppins for headings/buttons/badges; Inter (the new default "sans") for body copy.
 				sans: ["var(--font-inter)", "system-ui", "sans-serif"],
 				heading: ["var(--font-poppins)", "system-ui", "sans-serif"],
 			},
