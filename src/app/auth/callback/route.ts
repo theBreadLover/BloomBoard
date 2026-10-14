@@ -6,18 +6,20 @@ import {createClient} from "@/lib/supabase/server";
  * one-time code for a real signed-in session, then sends the user back
  * into the app.
  */
-export async function GET(request: Request): Promise<Response> {
-	const {searchParams, origin} = new URL(request.url);
-	const token: string | null = searchParams.get("token")?.split('_')[1] ?? null;
-	const redirectTarget = searchParams.get("next") ?? "/";
+export async function GET(request: Request) {
+	const requestUrl = new URL(request.url);
+	const code = requestUrl.searchParams.get("code");
+	const next = requestUrl.searchParams.get("next");
+	const redirectPath = next && next.startsWith("/") && !next.startsWith("//")
+		? next
+		: "/"
 
-	if (token) {
-		const supabase = await createClient();
-		const {error} = await supabase.auth.exchangeCodeForSession(token);
-		if (!error) {
-			return NextResponse.redirect(`${origin}${redirectTarget}`);
-		}
-	}
+	if (!code) return NextResponse.redirect(new URL("/login?confirmed=true", requestUrl.origin));
 
-	return NextResponse.redirect(`${origin}/login?error=auth`);
+	const supabase = await createClient();
+	const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+	if (!error) return NextResponse.redirect(new URL("/login?error=confirmation-failed", requestUrl.origin));
+
+	return NextResponse.redirect(new URL(redirectPath, requestUrl.origin));
 }

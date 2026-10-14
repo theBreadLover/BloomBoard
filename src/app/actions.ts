@@ -1,7 +1,6 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
-import {redirect} from "next/navigation";
 import {createClient} from "@/lib/supabase/server";
 import type {ProjectStatus} from "@/types/project";
 
@@ -89,11 +88,4 @@ export async function createNote(projectId: string, taskId: string | null, body:
 	await supabase.from("project_notes").insert({project_id: projectId, task_id: taskId, body: trimmedBody});
 
 	revalidatePath(`/project/${projectId}`);
-}
-
-/** Signs the current user out and sends them back to the login page. */
-export async function signOut(): Promise<void> {
-	const supabase = await createClient();
-	await supabase.auth.signOut();
-	redirect("/login");
 }

@@ -37,7 +37,7 @@ pnpm typecheck
 - The **project detail screen** at `/project/[id]`: a clickable status switcher, a real todo list
   (add/check off tasks), a day-grouped notes timeline (notes optionally tagged to a todo), a
   Source Code tab placeholder, and a work timer button.
-  - The work timer counts up live but doesn't persist anywhere yet — that's the next step below.
+- The work timer counts up live but doesn't persist anywhere yet — that's the next step below.
 
 ## What's next (in build order)
 

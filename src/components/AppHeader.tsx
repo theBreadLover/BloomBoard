@@ -1,4 +1,4 @@
-import {signOut} from "@/app/actions";
+import {signOut} from "@/app/auth/actions";
 
 /**
  * The app's sticky top bar: the BloomBoard brand mark plus a sign-out
