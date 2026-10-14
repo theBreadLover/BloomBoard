@@ -5,7 +5,7 @@ import {type NextRequest, NextResponse} from "next/server";
  * Runs on every request: refreshes the Supabase auth session, and redirects
  * signed-out visitors to /login (except for the login/auth routes themselves).
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
 	let response = NextResponse.next({request});
 
 	const supabase = createServerClient(
