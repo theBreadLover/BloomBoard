@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+    .project-tab {
+        @apply flex-1 rounded-lg p-2 font-heading text-sm font-bold transition;
+    }
+}

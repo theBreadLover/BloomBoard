@@ -163,7 +163,7 @@ export default function ProjectDetailView({project, tasks, notes}: ProjectDetail
 				<button
 					type="button"
 					onClick={() => setActiveTab("todos")}
-					className={`flex-1 rounded-lg py-2 font-heading text-sm font-bold transition ${
+					className={`project-tab ${
 						activeTab === "todos" ? "bg-brandAccent text-brandAccentContrast" : "text-brandTextMuted"
 					}`}
 				>
@@ -172,7 +172,7 @@ export default function ProjectDetailView({project, tasks, notes}: ProjectDetail
 				<button
 					type="button"
 					onClick={() => setActiveTab("notes")}
-					className={`flex-1 rounded-lg py-2 font-heading text-sm font-bold transition ${
+					className={`project-tab ${
 						activeTab === "notes" ? "bg-brandAccent text-brandAccentContrast" : "text-brandTextMuted"
 					}`}
 				>
@@ -181,7 +181,7 @@ export default function ProjectDetailView({project, tasks, notes}: ProjectDetail
 				<button
 					type="button"
 					onClick={() => setActiveTab("code")}
-					className={`flex-1 rounded-lg py-2 font-heading text-sm font-bold transition ${
+					className={`project-tab ${
 						activeTab === "code" ? "bg-brandAccent text-brandAccentContrast" : "text-brandTextMuted"
 					}`}
 				>
