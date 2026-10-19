@@ -5,8 +5,15 @@ import {useRouter} from "next/navigation";
 import {useEffect, useRef, useState, useTransition} from "react";
 import type {Project, ProjectNote, ProjectStatus, ProjectTask} from "@/types/project";
 import {PROJECT_STATUS_META} from "@/types/project";
-import {createNote, createTask, toggleTask as toggleTaskAction, updateProjectStatus} from "@/app/actions";
-import {formatClockTime, formatDuration, groupNotesByDay} from "@/lib/dateUtils";
+import {
+	createNote,
+	createTask,
+	toggleTask as toggleTaskAction,
+	updateProjectStatus} from "@/app/actions";
+import {
+	formatClockTime,
+	formatDuration,
+	groupNotesByDay} from "@/lib/dateUtils";
 import StatusBadge from "./StatusBadge";
 
 // The order statuses appear in the status switcher.

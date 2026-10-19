@@ -1,7 +1,10 @@
 "use client";
 
 import {useMemo, useState} from "react";
-import type {Project, ProjectStatus, ProjectTask} from "@/types/project";
+import type {
+	Project,
+	ProjectStatus,
+	ProjectTask} from "@/types/project";
 import {computeProjectProgress} from "@/lib/projectStats";
 import NewProjectForm from "./NewProjectForm";
 import ProjectCard from "./ProjectCard";
