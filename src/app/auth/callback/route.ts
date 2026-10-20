@@ -1,5 +1,6 @@
 import {NextResponse} from "next/server";
 import {createClient} from "@/lib/supabase/server";
+import {getSafeRedirectPath} from "@/lib/auth/redirectPath";
 
 /**
  * Handles the email-verification redirect from Supabase.
@@ -11,10 +12,7 @@ export async function GET(request: Request) {
 	const code = requestUrl.searchParams.get("code");
 	const next = requestUrl.searchParams.get("next");
 
-	const redirectPath =
-		next && next.startsWith("/") && !next.startsWith("//")
-			? next
-			: "/";
+	const redirectPath: string = getSafeRedirectPath(next);
 
 	if (!code) {
 		return NextResponse.redirect(
