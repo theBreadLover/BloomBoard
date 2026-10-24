@@ -1,5 +1,5 @@
 // The lifecycle status of a project, shown as a color-coded badge in the UI.
-export type ProjectStatus = "working" | "postponed" | "finished";
+export type ProjectStatus = "working" | "postponed" | "finished" | "abandoned";
 
 // A single task item that belongs to a project.
 export interface ProjectTask {
@@ -67,5 +67,11 @@ export const PROJECT_STATUS_META: Record<
 		badgeClassName: "bg-statusFinishedBg text-statusFinishedText",
 		dotClassName: "bg-statusFinishedDot",
 		borderClassName: "border-l-statusFinishedDot",
+	},
+	abandoned: {
+		label: "Abandoned",
+		badgeClassName: "bg-statusAbandonedBg text-statusAbandonedText",
+		dotClassName: "bg-statusAbandonedDot",
+		borderClassName: "border-l-statusAbandonedDot",
 	},
 };

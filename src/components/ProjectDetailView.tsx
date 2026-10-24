@@ -1,45 +1,50 @@
 "use client";
 
 import Link from "next/link";
-import {useEffect, useRef, useState} from "react";
-import type {Project, ProjectNote, ProjectTask} from "@/types/project";
-import {formatClockTime, formatDuration, groupNotesByDay} from "@/lib/dateUtils";
+import {useRouter} from "next/navigation";
+import {useEffect, useRef, useState, useTransition} from "react";
+import type {Project, ProjectNote, ProjectStatus, ProjectTask} from "@/types/project";
+import {PROJECT_STATUS_META} from "@/types/project";
+import {
+	createNote,
+	createTask,
+	toggleTask as toggleTaskAction,
+	updateProjectStatus} from "@/app/actions";
+import {
+	formatClockTime,
+	formatDuration,
+	groupNotesByDay} from "@/lib/dateUtils";
 import StatusBadge from "./StatusBadge";
+
+// The order statuses appear in the status switcher.
+const STATUS_OPTIONS: ProjectStatus[] = ["working", "postponed", "finished", "abandoned"];
 
 interface ProjectDetailViewProps {
 	project: Project;
-	initialTasks: ProjectTask[];
-	initialNotes: ProjectNote[];
+	tasks: ProjectTask[];
+	notes: ProjectNote[];
 }
 
 type DetailTab = "todos" | "notes" | "code";
 
 /**
- * Generates a short unique-enough id for client-created items (new todos and
- * notes) before they have a real backend-assigned id.
- * @param prefix - A short label for what kind of item this id is for.
- * @returns A id string unique enough for local list rendering.
- */
-function createLocalId(prefix: string): string {
-	return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-/**
- * The project detail screen: a status header, and tabs for the task
+ * The real project detail screen: a status header, and tabs for the todo
  * list, the day-grouped notes timeline, and (eventually) the GitHub source
  * browser. Also hosts the work session timer.
  *
- * Todos and notes are managed as local state for now — they start from the
- * mock data passed in by the server component, and changes here don't yet
- * persist anywhere.
+ * Every change here (status, todos, notes) calls a Supabase-backed Server
+ * Action and then refreshes the route, so `project`/`tasks`/`notes` are
+ * always the source of truth from the database — there's no local copy to
+ * drift out of sync. The work timer is still local-only; it gets wired to
+ * real work-session logging in a later step.
  */
-export default function ProjectDetailView({project, initialTasks, initialNotes}: ProjectDetailViewProps) {
+export default function ProjectDetailView({project, tasks, notes}: ProjectDetailViewProps) {
+	const router = useRouter();
+	const [isPending, startTransition] = useTransition();
 	const [activeTab, setActiveTab] = useState<DetailTab>("todos");
-	const [tasks, setTasks] = useState<ProjectTask[]>(initialTasks);
-	const [notes, setNotes] = useState<ProjectNote[]>(initialNotes);
 	const [newTodoText, setNewTodoText] = useState("");
 	const [newNoteText, setNewNoteText] = useState("");
-	// Empty string means "no specific task" — kept as a string since <select> values are always strings.
+	// Empty string means "no specific todo" — kept as a string since <select> values are always strings.
 	const [newNoteTaskId, setNewNoteTaskId] = useState("");
 	const [isTimerRunning, setIsTimerRunning] = useState(false);
 	const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -63,44 +68,45 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 	const completionPercentage = tasks.length === 0 ? 0 : Math.round((doneTaskCount / tasks.length) * 100);
 	const noteDayGroups = groupNotesByDay(notes);
 
-	// Flips a single task between done and not-done.
-	function toggleTask(taskId: string): void {
-		setTasks((previousTasks) =>
-			previousTasks.map((task) => (task.id === taskId ? {...task, isDone: !task.isDone} : task)),
-		);
+	/** Persists a new status for this project, then refreshes the page's data. */
+	function handleStatusChange(status: ProjectStatus): void {
+		startTransition(async () => {
+			await updateProjectStatus(project.id, status);
+			router.refresh();
+		});
 	}
 
-	// Adds a new task from the input box, ignoring empty submissions.
-	function addTask(): void {
+	/** Flips a task between done and not-done, then refreshes the page's data. */
+	function handleToggleTask(task: ProjectTask): void {
+		startTransition(async () => {
+			await toggleTaskAction(task.id, project.id, !task.isDone);
+			router.refresh();
+		});
+	}
+
+	/** Saves a new todo from the input box, ignoring empty submissions. */
+	function handleAddTask(): void {
 		const title = newTodoText.trim();
 		if (!title) return;
-		const task: ProjectTask = {
-			id: createLocalId("task"),
-			projectId: project.id,
-			title,
-			isDone: false,
-			createdAt: new Date().toISOString(),
-		};
-		setTasks((previousTasks) => [...previousTasks, task]);
 		setNewTodoText("");
+		startTransition(async () => {
+			await createTask(project.id, title);
+			router.refresh();
+		});
 	}
 
-	// Adds a new note from the input box, optionally tagged to a task, ignoring empty submissions.
-	function addNote(): void {
+	/** Saves a new note (optionally tagged to a todo), ignoring empty submissions. */
+	function handleAddNote(): void {
 		const body = newNoteText.trim();
 		if (!body) return;
-		const note: ProjectNote = {
-			id: createLocalId("note"),
-			projectId: project.id,
-			taskId: newNoteTaskId || null,
-			body,
-			createdAt: new Date().toISOString(),
-		};
-		setNotes((previousNotes) => [note, ...previousNotes]);
 		setNewNoteText("");
+		startTransition(async () => {
+			await createNote(project.id, newNoteTaskId || null, body);
+			router.refresh();
+		});
 	}
 
-	// Starts or stops the work session timer.
+	/** Starts or stops the work session timer (not yet persisted — see component doc comment). */
 	function toggleTimer(): void {
 		setIsTimerRunning((previous) => !previous);
 	}
@@ -119,6 +125,28 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 						<p className="mt-1 text-sm text-brandTextMuted">{project.description}</p>
 					</div>
 					<StatusBadge status={project.status}/>
+				</div>
+
+				<div className="mt-4 flex flex-wrap gap-2">
+					{STATUS_OPTIONS.map((statusOption) => {
+						const statusMeta = PROJECT_STATUS_META[statusOption];
+						const isActive = project.status === statusOption;
+						return (
+							<button
+								key={statusOption}
+								type="button"
+								disabled={isPending}
+								onClick={() => handleStatusChange(statusOption)}
+								className={`rounded-full px-3 py-1 font-heading text-xs font-semibold transition disabled:opacity-60 ${
+									isActive
+										? statusMeta.badgeClassName
+										: "border border-brandBorder bg-brandBg text-brandTextMuted hover:bg-brandAccentLight"
+								}`}
+							>
+								{statusMeta.label}
+							</button>
+						);
+					})}
 				</div>
 
 				<div className="mt-4 flex flex-wrap gap-2">
@@ -142,7 +170,7 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 				<button
 					type="button"
 					onClick={() => setActiveTab("todos")}
-					className={`flex-1 rounded-lg py-2 font-heading text-sm font-bold transition ${
+					className={`project-tab ${
 						activeTab === "todos" ? "bg-brandAccent text-brandAccentContrast" : "text-brandTextMuted"
 					}`}
 				>
@@ -151,7 +179,7 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 				<button
 					type="button"
 					onClick={() => setActiveTab("notes")}
-					className={`flex-1 rounded-lg py-2 font-heading text-sm font-bold transition ${
+					className={`project-tab ${
 						activeTab === "notes" ? "bg-brandAccent text-brandAccentContrast" : "text-brandTextMuted"
 					}`}
 				>
@@ -160,7 +188,7 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 				<button
 					type="button"
 					onClick={() => setActiveTab("code")}
-					className={`flex-1 rounded-lg py-2 font-heading text-sm font-bold transition ${
+					className={`project-tab ${
 						activeTab === "code" ? "bg-brandAccent text-brandAccentContrast" : "text-brandTextMuted"
 					}`}
 				>
@@ -178,9 +206,10 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 						     className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-brandBg">
 							<button
 								type="button"
-								onClick={() => toggleTask(task.id)}
+								disabled={isPending}
+								onClick={() => handleToggleTask(task)}
 								aria-label={task.isDone ? "Mark as not done" : "Mark as done"}
-								className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 text-xs font-bold ${
+								className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 text-xs font-bold disabled:opacity-60 ${
 									task.isDone
 										? "border-brandAccent bg-brandAccent text-brandAccentContrast"
 										: "border-brandBorder text-transparent"
@@ -199,15 +228,16 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 							value={newTodoText}
 							onChange={(event) => setNewTodoText(event.target.value)}
 							onKeyDown={(event) => {
-								if (event.key === "Enter") addTask();
+								if (event.key === "Enter") handleAddTask();
 							}}
 							placeholder="Add a todo…"
 							className="flex-1 bg-transparent text-sm text-brandText placeholder:text-brandTextFaint focus:outline-none"
 						/>
 						<button
 							type="button"
-							onClick={addTask}
-							className="rounded-lg bg-brandAccentLight px-3 py-1 font-heading text-xs font-bold text-brandAccent"
+							disabled={isPending}
+							onClick={handleAddTask}
+							className="rounded-lg bg-brandAccentLight px-3 py-1 font-heading text-xs font-bold text-brandAccent disabled:opacity-60"
 						>
 							Add
 						</button>
@@ -265,15 +295,16 @@ export default function ProjectDetailView({project, initialTasks, initialNotes}:
 								value={newNoteText}
 								onChange={(event) => setNewNoteText(event.target.value)}
 								onKeyDown={(event) => {
-									if (event.key === "Enter") addNote();
+									if (event.key === "Enter") handleAddNote();
 								}}
 								placeholder="Add a note about what you're working on…"
 								className="flex-1 bg-transparent text-sm text-brandText placeholder:text-brandTextFaint focus:outline-none"
 							/>
 							<button
 								type="button"
-								onClick={addNote}
-								className="rounded-lg bg-brandAccent px-3 py-1 font-heading text-xs font-bold text-brandAccentContrast"
+								disabled={isPending}
+								onClick={handleAddNote}
+								className="rounded-lg bg-brandAccent px-3 py-1 font-heading text-xs font-bold text-brandAccentContrast disabled:opacity-60"
 							>
 								Save
 							</button>

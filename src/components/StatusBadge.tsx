@@ -8,7 +8,7 @@ interface StatusBadgeProps {
 /**
  * Renders a small color-coded pill showing a project's current status.
  */
-export default function StatusBadge({ status }: StatusBadgeProps): JSX.Element {
+export default function StatusBadge({ status }: StatusBadgeProps) {
   const meta = PROJECT_STATUS_META[status];
   return (
     <span

@@ -11,6 +11,19 @@ function isSameDay(firstDate: Date, secondDate: Date): boolean {
 }
 
 /**
+ * Creates a stable key for a date in the user's local calendar.
+ * Including the full local date keeps values with different years
+ * in separate groups.
+ */
+function getCalendarDayKey(date: Date): string {
+	const year: number = date.getFullYear();
+	const month: number = date.getMonth() + 1;
+	const day: number = date.getDate();
+
+	return `${year}-${month}-${day}`;
+}
+
+/**
  * Formats a timestamp as a day-group label for the notes timeline, e.g.
  * "Today", "Yesterday", or "Oct 9" for anything older.
  * @param isoTimestamp - The timestamp to label.
@@ -53,19 +66,26 @@ export interface NoteDayGroup {
  * @returns An array of day groups, newest day first.
  */
 export function groupNotesByDay(notes: ProjectNote[]): NoteDayGroup[] {
-	const groups: NoteDayGroup[] = [];
+	const groupsByDay: Map<string, NoteDayGroup> = new Map();
 
 	for (const note of notes) {
-		const label = formatDayLabel(note.createdAt);
-		const existingGroup = groups.find((group) => group.dayLabel === label);
+		const noteDate: Date = new Date(note.createdAt);
+		const dayKey: string = getCalendarDayKey(noteDate);
+		const existingGroup: NoteDayGroup | undefined = groupsByDay.get(dayKey);
+
 		if (existingGroup) {
 			existingGroup.notes.push(note);
-		} else {
-			groups.push({dayLabel: label, notes: [note]});
+			continue;
 		}
+
+		groupsByDay.set(dayKey, {
+			dayLabel: formatDayLabel(note.createdAt),
+			notes: [note],
+		});
 	}
 
-	return groups;
+	// Map preserves insertion order, which keeps the supplied newest-first order.
+	return Array.from(groupsByDay.values());
 }
 
 /**
