@@ -1,36 +1,34 @@
 @import "tailwindcss";
 @theme {
-    --color-brandBg: "#160c12";
-    --color-brandSurface: "#221119";
-    --color-brandBorder: "#3d2130";
-    --color-brandText: "#f5e8ef";
-    --color-brandTextMuted: "#c6a0b4";
-    --color-brandTextFaint: "#8f6b7d";
-    --color-brandAccent: "#f472b6";
-    --color-brandAccentDark: "#ec4899";
-    --color-brandAccentLight: "#3c1c2d";
-    --color-brandAccentContrast: "#1a0a12";
+    --color-brandBg: #160c12;
+    --color-brandSurface: #221119;
+    --color-brandBorder: #3d2130;
+    --color-brandText: #f5e8ef;
+    --color-brandTextMuted: #c6a0b4;
+    --color-brandTextFaint: #8f6b7d;
+    --color-brandAccent: #f472b6;
+    --color-brandAccentDark: #ec4899;
+    --color-brandAccentLight: #3c1c2d;
+    --color-brandAccentContrast: #1a0a12;
 
     /* Fixed semantic status colors — do not change with theme.*/
-    --color-statusWorkingBg: "rgba(16, 185, 129, 0.18)";
-    --color-statusWorkingText: "#6ee7b7";
-    --color-statusWorkingDot: "#34d399";
-    --color-statusPostponedBg: "rgba(245, 158, 11, 0.18)";
-    --color-statusPostponedText: "#fcd34d";
-    --color-statusPostponedDot: "#fbbf24";
-    --color-statusFinishedBg: "rgba(148, 163, 184, 0.18)";
-    --color-statusFinishedText: "#cbd5e1";
-    --color-statusFinishedDot: "#94a3b8";
-    --color-statusAbandonedBg: "rgba(248, 113, 113, 0.18)";
-    --color-statusAbandonedText: "#fca5a5";
-    --color-statusAbandonedDot: "#f87171";
+    --color-statusWorkingBg: rgba(16, 185, 129, 0.18);
+    --color-statusWorkingText: #6ee7b7;
+    --color-statusWorkingDot: #34d399;
+    --color-statusPostponedBg: rgba(245, 158, 11, 0.18);
+    --color-statusPostponedText: #fcd34d;
+    --color-statusPostponedDot: #fbbf24;
+    --color-statusFinishedBg: rgba(148, 163, 184, 0.18);
+    --color-statusFinishedText: #cbd5e1;
+    --color-statusFinishedDot: #94a3b8;
+    --color-statusAbandonedBg: rgba(248, 113, 113, 0.18);
+    --color-statusAbandonedText: #fca5a5;
+    --color-statusAbandonedDot: #f87171;
 
     /* Font families */
-    --font-heading: "Poppings", system-ui, sans-serif;
+    --font-heading: "Poppins", system-ui, sans-serif;
     --font-sans: "Inter", system-ui, sans-serif;
 }
-    /*sans: ["font-inter", "system-ui", "sans-serif"],*/
-    /*heading: ["poppins", "system-ui", "sans-serif"],*/
 
 @layer utilities {
     .project-tab {
