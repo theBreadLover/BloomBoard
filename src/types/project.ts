@@ -25,6 +25,7 @@ export interface ProjectNote {
 // A single timed work session on a project, used to measure daily work time.
 export interface WorkSession {
 	id: string;
+	userId: string
 	projectId: string;
 	startedAt: string; // ISO timestamp
 	endedAt: string | null; // null while the timer is still running
