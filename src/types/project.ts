@@ -25,10 +25,18 @@ export interface ProjectNote {
 // A single timed work session on a project, used to measure daily work time.
 export interface WorkSession {
 	id: string;
-	userId: string
+	userId: string;
 	projectId: string;
 	startedAt: string; // ISO timestamp
 	endedAt: string | null; // null while the timer is still running
+}
+
+/**
+ * An active work session with the project metadata needed to identify and navigate to
+ * the project currently being tracked.
+ */
+export interface ActiveWorkSession extends WorkSession {
+	projectName: string;
 }
 
 // A tracked personal project, the top-level entity in the app.
