@@ -2,7 +2,49 @@
 
 import {revalidatePath} from "next/cache";
 import {createClient} from "@/lib/supabase/server";
-import type {ProjectStatus} from "@/types/project";
+import type {
+	ProjectStatus,
+	StartWorkSessionResult,
+	WorkSession,
+} from "@/types/project";
+
+interface StartWorkSessionRpcRow {
+	status: "success" | "already_active" | "not_found" | "unauthorized";
+	session_id: string | null;
+	user_id: string | null;
+	project_id: string | null;
+	started_at: string | null;
+	ended_at: string | null;
+	active_project_id: string | null;
+}
+
+interface RpcError {
+	code?: string;
+	message: string;
+}
+
+function mapSuccessfulWorkSession(row: StartWorkSessionRpcRow): WorkSession  |null {
+	if (
+		row.session_id === null ||
+		row.user_id === null ||
+		row.project_id === null ||
+		row.started_at === null
+	) {
+		return null;
+	}
+
+	return  {
+		id: row.session_id,
+		userId: row.user_id,
+		projectId: row.project_id,
+		startedAt: row.started_at,
+		endedAt: row.ended_at,
+	}
+}
+
+function isRpcPermisionDenied(error: RpcError): boolean {
+	return error.code === "42501";
+}
 
 /**
  * Creates a new project for the signed-in user from a submitted form
@@ -88,4 +130,92 @@ export async function createNote(projectId: string, taskId: string | null, body:
 	await supabase.from("project_notes").insert({project_id: projectId, task_id: taskId, body: trimmedBody});
 
 	revalidatePath(`/project/${projectId}`);
+}
+
+/**
+ * Starts a persisted work session for an owned project.
+ *
+ * PostgreSQL owns authentication, project authorization, concurrency, and the authoritative start timestamp.
+ * This action translate the database command result into BloomBoard's typed application contract.
+ *
+ * @param projectId - The project the user wants to start working on.
+ * @returns The resulting work-session state.
+ */
+export async function startWorkSession(projectId: string): Promise<StartWorkSessionResult> {
+	const supabase = await createClient();
+
+	const {data, error} = await supabase.rpc(
+		"start_work_session",
+		{
+			requested_project_id: projectId,
+		},
+	);
+
+	if(error) {
+		if(isRpcPermisionDenied(error)) {
+			return {
+				status: "unauthorized",
+				message: "You must be signed in to start a work session.",
+			}
+		}
+
+		return {
+			status: "error",
+			message: "Could not start the work session. Try again.",
+		}
+	}
+
+	const row: StartWorkSessionRpcRow | undefined = data?.[0];
+
+	if (!row) {
+		return {
+			status: "error",
+			message: "Could not start the work session. Try again.",
+		}
+	}
+
+	if (row.status === 'already_active') {
+		if (row.active_project_id === null) {
+			return {
+				status: "error",
+				message: "Could not start the work session. Try again.",
+			}
+		}
+
+		return {
+			status: "already-active",
+			activeProjectId: row.active_project_id,
+		}
+	}
+
+	if (row.status === "not_found") {
+		return {
+			status: "not-found",
+			message: "The project could not be found.",
+		}
+	}
+
+	if (row.status === "unauthorized") {
+		return {
+			status: "unauthorized",
+			message: "You must be signed in to start a work session.",
+		}
+	}
+
+	const session: WorkSession | null = mapSuccessfulWorkSession(row);
+
+	if (!session) {
+		return {
+			status: "error",
+			message: "Could not start the work session. Try again.",
+		}
+	}
+
+	revalidatePath("/");
+	revalidatePath(`/project/${session.projectId}`);
+
+	return {
+		status: "success",
+		session,
+	}
 }

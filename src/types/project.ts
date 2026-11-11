@@ -49,6 +49,11 @@ export interface Project {
 	createdAt: string; // ISO timestamp
 }
 
+export type StartWorkSessionResult =
+	| { status: "success"; session: WorkSession }
+	| { status: "already-active"; activeProjectId: string }
+	| { status: "unauthorized" | "not-found" | "error"; message: string };
+
 /**
  * Display metadata for each status value: label text and the Tailwind color
  * classes used for its badge, status dot, and card left-border accent.
